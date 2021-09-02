@@ -1,0 +1,106 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Todos</h1>
+<%= link_to 'show all...', controller: 'todos', action: 'index' %>
+
+<h3>Search options</h3>
+<div>
+  <span id="search">
+    <%= form_with url: search_url, method: :get do |form| %>
+      <%= form.text_field :query %>
+      <%= form.submit "Search" %>
+    <% end %>
+  </span>
+  <span id="sel_tag">
+    <%= form_with url: filter_url, method: :get do |form| %>
+      <select name="tag" id="tags">
+      <%= Array(@tags).each do |tag| %>
+        <option value="<%= tag %>"><%= tag %></option>
+        <% end %>
+      </select>
+      <%= form.submit "Filter" %>
+    <% end %>
+  </span>
+
+  <span id="date_filter">
+    <%= form_with url: filter_url, method: :get do |form| %>
+      <%= form.date_field :start_date %>
+      <%= form.date_field :end_date %>
+      <%= form.submit "Filter" %>
+    <% end %>
+  </span>
+</div>
+
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+      <th><%= link_to 'Due', filter_path(:order => "asc"), style: "color:white;" %></th>
+      <th>Tag</th>
+      <th>Done</th>
+      <th colspan="4"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% Array(@todos).each do |todo| %>
+      <tr>
+        <td>
+          <% @users.each do |user| %>
+            <%= link_to raw("&#128073;") + " " + user.name, edit_todo_path(todo, :give_to => user.name) %> 
+          <% end %>          
+          <%=  todo.name %>
+        </td>
+        <td><%= todo.description %></td>
+        <td><%= todo.due.strftime("%a, %H:%M %d/%m/%y") %></td>
+        <td style="background-color: <%= todo.tag %>;"><%= todo.tag %></td>
+        <td><%= if todo.done != true 
+          "No"
+          else 
+          "Yes"
+          end
+        %></td>
+        <td><%= link_to 'Download', calendar_path(todo, :type => 'ical')  %></td>
+        <td><%= link_to 'Edit', edit_todo_path(todo) %></td>
+        <td><%= link_to 'Destroy', todo, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= 
+          if (!todo.done)
+            link_to 'Complete', edit_todo_path(todo, :done => true), style: 'color:green' 
+          end
+          %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Todo', new_todo_path %>
+
+<hr>
+
+<h3> Completed TODOs: </h3>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+      <th>Done at</th>
+      <th>Tag</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% Array(@completed_todos).each do |todo| %>
+      <tr>
+        <td><%= todo.name %></td>
+        <td><%= todo.description %></td>
+        <td> <%= todo.updated_at.strftime("%a, %H:%M %d/%m/%y") %></td>
+        <td><%= todo.tag %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
